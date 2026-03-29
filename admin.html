@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AURA — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: #F0F4FF; overflow: hidden; }
+
+    /* LOGIN GATE */
+    #admin-login {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #F0F4FF 0%, #E8F0FF 100%);
+    }
+    #admin-login.hidden { display: none; }
+
+    .login-glass {
+      width: 420px; background: white; border-radius: 28px;
+      padding: 48px; box-shadow: 0 32px 80px rgba(0,120,255,0.12), 0 8px 32px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,120,255,0.08);
+      animation: fadeInUp 0.5s ease;
+    }
+    .login-top {
+      text-align: center; margin-bottom: 36px;
+    }
+    .login-logo-wrap {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 16px;
+      background: linear-gradient(135deg, rgba(0,120,255,0.08), rgba(123,79,255,0.08));
+      border: 1px solid rgba(0,120,255,0.12);
+    }
+    .restricted-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,77,106,0.08); border: 1px solid rgba(255,77,106,0.15);
+      color: var(--danger); border-radius: 99px; padding: 4px 14px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-top: 12px;
+    }
+    #login-err {
+      background: rgba(255,77,106,0.08); color: var(--danger);
+      border: 1px solid rgba(255,77,106,0.15); border-radius: 10px;
+      padding: 10px 14px; font-size: 0.82rem; margin-top: 14px;
+      display: none;
+    }
+    #login-err:not(:empty) { display: block; }
+
+    /* ADMIN APP */
+    #admin-app { display: none; height: 100vh; flex-direction: column; }
+    #admin-app.visible { display: flex; }
+
+    .admin-nav {
+      height: var(--nav-h); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,120,255,0.08);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    }
+
+    .admin-body {
+      flex: 1; display: grid; grid-template-columns: 220px 1fr;
+      overflow: hidden;
+    }
+
+    .admin-sidebar {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      border-right: 1px solid rgba(0,120,255,0.08);
+      padding: 20px 14px;
+      display: flex; flex-direction: column; gap: 2px;
+      overflow-y: auto;
+    }
+
+    .admin-content {
+      overflow-y: auto; padding: 32px;
+      background: transparent;
+    }
+    .admin-content::-webkit-scrollbar { width: 4px; }
+    .admin-content::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+    .apg { display: none; }
+    .apg.active { display: flex; flex-direction: column; gap: 20px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card {
+      background: white; border-radius: 18px; padding: 24px;
+      border: 1px solid var(--gray-100);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      transition: all var(--t-normal);
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,120,255,0.1); }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 14px;
+    }
+    .stat-val {
+      font-family: var(--font-display); font-size: 2rem;
+      font-weight: 800; line-height: 1; margin-bottom: 4px;
+    }
+    .stat-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+    .page-header p { color: var(--text-muted); font-size: 0.875rem; margin-top: 4px; }
+
+    .settings-info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--gray-50);
+      font-size: 0.875rem;
+    }
+    .settings-info-row:last-child { border-bottom: none; }
+    .settings-info-row .label { color: var(--text-muted); font-size: 0.78rem; }
+    .settings-info-row .val { font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="page-bg">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+
+<!-- LOGIN GATE -->
+<div id="admin-login">
+  <div class="login-glass">
+    <div class="login-top">
+      <div class="login-logo-wrap">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
+          <ellipse cx="16" cy="18" rx="9" ry="11" fill="none" stroke="url(#alg)" stroke-width="2"/>
+          <path d="M9 14 Q16 7 23 14" fill="none" stroke="url(#alg)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12.5" cy="11.5" r="2" fill="#0078FF"/>
+          <circle cx="19.5" cy="11.5" r="2" fill="#7B4FFF"/>
+          <defs><linearGradient id="alg" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#0078FF"/><stop offset="100%" stop-color="#7B4FFF"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div class="gradient-text" style="font-family:var(--font-display);font-size:1.8rem;font-weight:800">AURA</div>
+      <div style="color:var(--text-muted);font-size:0.85rem;margin-top:4px">Admin Panel</div>
+      <div class="restricted-badge">🔒 Restricted Access</div>
+    </div>
+
+    <div class="form-group mb-4">
+      <label class="form-label">Admin ID</label>
+      <input type="text" class="form-input" id="admin-id" placeholder="Enter admin ID"/>
+    </div>
+    <div class="form-group mb-4">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')attemptLogin()"/>
+    </div>
+    <button class="btn btn-primary w-full" style="justify-content:center" onclick="attemptLogin()">Access Admin Panel</button>
+    <div id="login-err"></div>
+    <p style="text-align:center;font-size:0.72rem;color:var(--text-muted);margin-top:20px">All access attempts are logged · Authorized personnel only</p>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+  <!-- NAV -->
+  <nav class="admin-nav">
+    <div class="flex items-center gap-3">
+      <div class="aura-logo-mark">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+          <ellipse cx="16" cy="18" rx="9" ry="11" fill="none" stroke="url(#anlg)" stroke-width="2"/>
+          <path d="M9 14 Q16 7 23 14" fill="none" stroke="url(#anlg)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12.5" cy="11.5" r="1.5" fill="#0078FF"/>
+          <circle cx="19.5" cy="11.5" r="1.5" fill="#7B4FFF"/>
+          <defs><linearGradient id="anlg" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#0078FF"/><stop offset="100%" stop-color="#7B4FFF"/></linearGradient></defs>
+        </svg>
+        <span class="gradient-text" style="font-size:1.1rem">AURA</span>
+      </div>
+      <span class="badge badge-red">Admin</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--success)">
+        <span style="width:7px;height:7px;background:var(--success);border-radius:50%;display:inline-block;animation:pulse-glow 2s infinite"></span>
+        <span id="anav-user">admin</span>
+      </div>
+      <button class="btn btn-glass btn-sm" onclick="adminLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="admin-body">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-section-label">Overview</div>
+      <div class="sidebar-item active" onclick="showAPage('dashboard', this)">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="sidebar-section-label">Data</div>
+      <div class="sidebar-item" onclick="showAPage('users', this)">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg>
+        Users
+      </div>
+      <div class="sidebar-item" onclick="showAPage('scans', this)">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 9V7a2 2 0 012-2h2M3 15v2a2 2 0 002 2h2M15 3h2a2 2 0 012 2v2M15 21h2a2 2 0 002-2v-2"/></svg>
+        Scan Logs
+      </div>
+      <div class="sidebar-item" onclick="showAPage('appointments', this)">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Appointments
+      </div>
+      <div class="sidebar-section-label">Config</div>
+      <div class="sidebar-item" onclick="showAPage('settings', this)">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <div class="admin-content">
+
+      <!-- DASHBOARD OVERVIEW -->
+      <div class="apg active" id="apg-dashboard">
+        <div class="page-header">
+          <h1>Admin Dashboard</h1>
+          <p>Real-time overview of the AURA platform</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(0,120,255,0.08)">👥</div>
+            <div class="stat-val gradient-text" id="stat-users">—</div>
+            <div class="stat-lbl">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(123,79,255,0.08)">🔬</div>
+            <div class="stat-val gradient-text" id="stat-scans">—</div>
+            <div class="stat-lbl">Total Scans</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(0,204,126,0.08)">📅</div>
+            <div class="stat-val gradient-text" id="stat-apts">—</div>
+            <div class="stat-lbl">Appointments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(255,154,0,0.08)">⚡</div>
+            <div class="stat-val gradient-text" id="stat-today">—</div>
+            <div class="stat-lbl">Scans Today</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:1rem">Recent Conditions</div>
+              <div style="font-size:0.78rem;color:var(--text-muted)">Top detected skin conditions</div>
+            </div>
+            <button class="btn btn-glass btn-sm" onclick="loadDashStats()">↻ Refresh</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Condition</th><th>Count</th><th>Avg Confidence</th></tr></thead>
+            <tbody id="cond-tbody"><tr><td colspan="3" style="text-align:center;padding:32px;color:var(--text-muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="apg" id="apg-users">
+        <div class="page-header">
+          <h1>Users</h1>
+          <p>All registered AURA accounts</p>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:1rem">Registered Users</div>
+              <div style="font-size:0.78rem;color:var(--text-muted)">Names and profile data from profiles table</div>
+            </div>
+            <button class="btn btn-glass btn-sm" onclick="loadUsers()">↻ Refresh</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Skin Type</th><th>Joined</th><th>Scans</th><th>Status</th></tr></thead>
+            <tbody id="users-tbody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SCAN LOGS -->
+      <div class="apg" id="apg-scans">
+        <div class="page-header">
+          <h1>Scan Logs</h1>
+          <p>All AI scan results — images are not stored (privacy policy)</p>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:1rem">All Scans</div>
+              <div style="font-size:0.78rem;color:var(--text-muted)">Latest 50 scan records</div>
+            </div>
+            <button class="btn btn-glass btn-sm" onclick="loadScans()">↻ Refresh</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Condition</th><th>Severity</th><th>Confidence</th><th>Date</th></tr></thead>
+            <tbody id="scans-tbody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- APPOINTMENTS -->
+      <div class="apg" id="apg-appointments">
+        <div class="page-header">
+          <h1>Appointments</h1>
+          <p>All doctor consultation bookings</p>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:1rem">Booking Records</div>
+              <div style="font-size:0.78rem;color:var(--text-muted)">All requested and confirmed appointments</div>
+            </div>
+            <button class="btn btn-glass btn-sm" onclick="loadApts()">↻ Refresh</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Doctor</th><th>Specialty</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="apts-tbody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="apg" id="apg-settings">
+        <div class="page-header">
+          <h1>Admin Settings</h1>
+          <p>Platform configuration and security info</p>
+        </div>
+        <div class="settings-section">
+          <h3>Admin Credentials</h3>
+          <div class="settings-info-row"><span class="label">Admin ID 1</span><span class="val">admin</span></div>
+          <div class="settings-info-row"><span class="label">Admin ID 2</span><span class="val">superadmin</span></div>
+          <div style="background:rgba(255,154,0,0.06);border:1px solid rgba(255,154,0,0.15);border-radius:10px;padding:14px;margin-top:16px;font-size:0.8rem;color:var(--warning)">
+            ⚠️ Admin credentials are currently hardcoded. Change them in admin.html before deploying to production.
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Backend Configuration</h3>
+          <div class="settings-info-row"><span class="label">API Endpoint</span><span class="val" style="font-family:monospace;font-size:0.82rem">http://localhost:8002</span></div>
+          <div class="settings-info-row"><span class="label">Supabase Project</span><span class="val" style="font-family:monospace;font-size:0.82rem">bfnqfxjtxdtyoprrqfki</span></div>
+          <div class="settings-info-row"><span class="label">Auth Method</span><span class="val">Supabase Anon Key</span></div>
+          <div class="settings-info-row"><span class="label">ML Model</span><span class="val">SkincareClassifier (HuggingFace)</span></div>
+        </div>
+        <div class="settings-section">
+          <h3>Supabase Tables</h3>
+          <div class="settings-info-row"><span class="label">profiles</span><span class="badge badge-green">Active</span></div>
+          <div class="settings-info-row"><span class="label">scans</span><span class="badge badge-green">Active</span></div>
+          <div class="settings-info-row"><span class="label">appointments</span><span class="badge badge-green">Active</span></div>
+          <div class="settings-info-row"><span class="label">scan-images (Storage)</span><span class="badge badge-orange">Check bucket</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  window._sbA = createClient("https://bfnqfxjtxdtyoprrqfki.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmbnFmeGp0eGR0eW9wcnJxZmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjE1MjAsImV4cCI6MjA4OTg5NzUyMH0.6tNMZ_2cgpzRxR-JaR0kk_8Pzrprrc4gGAzByQzIn8E")
+</script>
+<script>
+  const ADMIN_CREDS = [
+    { id: 'admin', password: 'dermai@2026' },
+    { id: 'superadmin', password: 'dermai@super2026' }
+  ]
+
+  function attemptLogin() {
+    const id = document.getElementById('admin-id').value.trim()
+    const pass = document.getElementById('admin-pass').value
+    const match = ADMIN_CREDS.find(c => c.id === id && c.password === pass)
+    if (match) {
+      document.getElementById('admin-login').classList.add('hidden')
+      document.getElementById('admin-app').classList.add('visible')
+      document.getElementById('anav-user').textContent = id
+      gsap.from('#admin-app', { opacity: 0, duration: 0.5 })
+      loadDashStats()
+    } else {
+      const err = document.getElementById('login-err')
+      err.textContent = 'Invalid credentials. Access denied.'
+      gsap.from(err, { opacity: 0, x: -10, duration: 0.3 })
+    }
+  }
+  window.attemptLogin = attemptLogin
+  document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin() })
+
+  function adminLogout() {
+    document.getElementById('admin-login').classList.remove('hidden')
+    document.getElementById('admin-app').classList.remove('visible')
+    document.getElementById('admin-id').value = ''
+    document.getElementById('admin-pass').value = ''
+    document.getElementById('login-err').textContent = ''
+  }
+  window.adminLogout = adminLogout
+
+  let _activeNavItem = document.querySelector('.admin-sidebar .sidebar-item.active')
+  function showAPage(name, el) {
+    document.querySelectorAll('.apg').forEach(p => p.classList.remove('active'))
+    document.querySelectorAll('.admin-sidebar .sidebar-item').forEach(i => i.classList.remove('active'))
+    document.getElementById('apg-' + name)?.classList.add('active')
+    if (el) el.classList.add('active')
+    gsap.from('#apg-' + name + '>*', { opacity: 0, y: 12, stagger: 0.07, duration: 0.35, ease: 'power2.out' })
+    if (name === 'users') loadUsers()
+    if (name === 'scans') loadScans()
+    if (name === 'appointments') loadApts()
+    if (name === 'dashboard') loadDashStats()
+  }
+  window.showAPage = showAPage
+
+  const fmt = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+  const sevColor = s => ({ High: 'var(--danger)', Medium: 'var(--warning)', Low: 'var(--success)' }[s] || 'var(--text-muted)')
+
+  async function loadDashStats() {
+    const sb = window._sbA; if (!sb) return
+    try {
+      const [users, scans, apts] = await Promise.all([
+        sb.from('profiles').select('id', { count: 'exact', head: true }),
+        sb.from('scans').select('id', { count: 'exact', head: true }),
+        sb.from('appointments').select('id', { count: 'exact', head: true })
+      ])
+      document.getElementById('stat-users').textContent = users.count ?? 0
+      document.getElementById('stat-scans').textContent = scans.count ?? 0
+      document.getElementById('stat-apts').textContent = apts.count ?? 0
+      const today = new Date().toISOString().split('T')[0]
+      const { count: todayCount } = await sb.from('scans').select('id', { count: 'exact', head: true }).gte('created_at', today)
+      document.getElementById('stat-today').textContent = todayCount ?? 0
+      const { data: cdata } = await sb.from('scans').select('condition,confidence')
+      const condMap = {}
+      ;(cdata || []).forEach(s => { if (!condMap[s.condition]) condMap[s.condition] = { count: 0, totalConf: 0 }; condMap[s.condition].count++; condMap[s.condition].totalConf += (s.confidence || 0) })
+      const rows = Object.entries(condMap).sort((a, b) => b[1].count - a[1].count).slice(0, 6)
+      const tbody = document.getElementById('cond-tbody')
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted)">No scan data yet</td></tr>'; return }
+      tbody.innerHTML = rows.map(([cond, d]) => `<tr><td style="font-weight:500">${cond}</td><td><span class="badge badge-blue">${d.count}</span></td><td>${Math.round((d.totalConf / d.count) * 100)}%</td></tr>`).join('')
+    } catch(e) { document.getElementById('cond-tbody').innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted)">Connect Supabase to view data</td></tr>' }
+  }
+  window.loadDashStats = loadDashStats
+
+  async function loadUsers() {
+    const tbody = document.getElementById('users-tbody')
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Loading…</td></tr>'
+    try {
+      const { data: profiles } = await window._sbA.from('profiles').select('id,name,skin_type,created_at')
+      const { data: scans } = await window._sbA.from('scans').select('user_id')
+      const counts = {}
+      ;(scans || []).forEach(s => { counts[s.user_id] = (counts[s.user_id] || 0) + 1 })
+      if (!profiles?.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No users found</td></tr>'; return }
+      tbody.innerHTML = profiles.map(u => `<tr>
+        <td><div style="font-weight:600">${u.name || '—'}</div></td>
+        <td>${u.skin_type || 'Normal'}</td>
+        <td>${fmt(u.created_at)}</td>
+        <td><span class="badge badge-blue">${counts[u.id] || 0} scans</span></td>
+        <td><span class="badge badge-green">Active</span></td>
+      </tr>`).join('')
+    } catch(e) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Connect Supabase to view users</td></tr>' }
+  }
+  window.loadUsers = loadUsers
+
+  async function loadScans() {
+    const tbody = document.getElementById('scans-tbody')
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Loading…</td></tr>'
+    try {
+      const { data: scans } = await window._sbA.from('scans').select('*,profiles(name)').order('created_at', { ascending: false }).limit(50)
+      if (!scans?.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No scans recorded yet</td></tr>'; return }
+      tbody.innerHTML = scans.map(s => `<tr>
+        <td style="font-weight:500">${s.profiles?.name || 'Anonymous'}</td>
+        <td>${s.condition || '—'}</td>
+        <td><span style="color:${sevColor(s.severity)};font-weight:600">${s.severity || '—'}</span></td>
+        <td>${s.confidence ? Math.round(s.confidence * 100) + '%' : '—'}</td>
+        <td>${fmt(s.created_at)}</td>
+      </tr>`).join('')
+    } catch(e) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Connect Supabase to view scan logs</td></tr>' }
+  }
+  window.loadScans = loadScans
+
+  async function loadApts() {
+    const tbody = document.getElementById('apts-tbody')
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Loading…</td></tr>'
+    try {
+      const { data: apts } = await window._sbA.from('appointments').select('*').order('requested_at', { ascending: false })
+      if (!apts?.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No appointments yet</td></tr>'; return }
+      tbody.innerHTML = apts.map(a => `<tr>
+        <td style="font-weight:500">${a.user_name || '—'}</td>
+        <td>${a.doctor_name}</td>
+        <td>${a.doctor_specialty || '—'}</td>
+        <td>${a.preferred_date ? fmt(a.preferred_date) : 'TBC'}</td>
+        <td><span class="badge ${a.status === 'Confirmed' ? 'badge-green' : a.status === 'Cancelled' ? 'badge-red' : 'badge-orange'}">${a.status || 'Requested'}</span></td>
+      </tr>`).join('')
+    } catch(e) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Add the appointments table in Supabase</td></tr>' }
+  }
+  window.loadApts = loadApts
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Node.js
+node_modules/
+dist/
+.npm
+.eslintcache
+
+# Logs and OS files
+*.log
+pip_error.txt
+pip_error_utf8.txt
+.DS_Store
+Thumbs.db
+
+# Environment variables (just in case)
+.env
+.env.local

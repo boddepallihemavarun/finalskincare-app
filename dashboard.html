@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURA — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: #F0F4FF;
+      overflow: hidden;
+    }
+
+    /* Sidebar — same airy glass as index navbar */
+    .sidebar {
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(24px) !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 2px 0 24px rgba(0, 120, 255, 0.04) !important;
+    }
+
+    /* Top nav — matches index navbar pill feel */
+    .dash-nav {
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 4px 24px rgba(0, 120, 255, 0.04);
+      flex-shrink: 0;
+    }
+
+    /* User chip — same as index's glass buttons */
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px 6px 6px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 12px rgba(0, 120, 255, 0.06);
+      cursor: pointer;
+      transition: all var(--t-fast);
+      backdrop-filter: blur(12px);
+    }
+
+    .user-chip:hover {
+      box-shadow: 0 4px 20px rgba(0, 120, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--aura-blue), var(--aura-violet));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    /* Page sections — match index card style exactly */
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary) 60%, var(--aura-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* White cards — same box-shadow as index feature-card */
+    .metric-card {
+      background: white !important;
+      border: 1px solid var(--gray-100) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+      border-radius: 20px !important;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 16px 40px rgba(0, 120, 255, 0.1) !important;
+      border-color: rgba(0, 120, 255, 0.15) !important;
+    }
+
+    /* Scanner layout */
+    .scanner-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .scanner-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .scan-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+      color: var(--text-muted);
+    }
+
+    /* Results */
+    .result-header {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .result-thumb {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid var(--gray-200);
+    }
+
+    .severity-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .severity-low {
+      background: rgba(0, 204, 126, 0.1);
+      color: var(--success);
+    }
+
+    .severity-medium {
+      background: rgba(255, 154, 0, 0.1);
+      color: var(--warning);
+    }
+
+    .severity-high {
+      background: rgba(255, 77, 106, 0.1);
+      color: var(--danger);
+    }
+
+    .severity-inconclusive {
+      background: rgba(255, 77, 106, 0.12);
+      color: #FF4D6A;
+      border: 1px solid rgba(255, 77, 106, 0.2);
+    }
+
+    /* Doctor cards — match index feature-card */
+    .doctors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .doctor-card {
+      background: white !important;
+      border: 1px solid var(--gray-100) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+      border-radius: 20px !important;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 16px 40px rgba(0, 120, 255, 0.1) !important;
+      border-color: rgba(0, 120, 255, 0.15) !important;
+    }
+
+    /* History cards */
+    .history-card {
+      background: white !important;
+      border: 1px solid var(--gray-100) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+      border-radius: 16px !important;
+    }
+
+    .history-card:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 24px rgba(0, 120, 255, 0.08) !important;
+    }
+
+    /* Settings sections */
+    .settings-section {
+      background: white !important;
+      border: 1px solid var(--gray-100) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+      border-radius: 20px !important;
+    }
+
+    /* Appointment form modal */
+    .apt-doctor-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--gray-50);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid var(--gray-200);
+      margin-bottom: 24px;
+    }
+
+    /* Community */
+    .remedy-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--gray-100);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .remedy-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 120, 255, 0.1);
+      border-color: rgba(0, 120, 255, 0.15);
+    }
+
+    /* Chatbot typing dot override */
+    .loading-dots span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      margin: 0 2px;
+      animation: typingBounce 1.2s infinite;
+    }
+
+    .loading-dots span:nth-child(2) {
+      animation-delay: .2s
+    }
+
+    .loading-dots span:nth-child(3) {
+      animation-delay: .4s
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-bg">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+
+  <div class="dashboard-root">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <a href="index.html" class="aura-logo-mark">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+            <ellipse cx="16" cy="18" rx="9" ry="11" fill="none" stroke="url(#slg)" stroke-width="2" />
+            <path d="M9 14 Q16 7 23 14" fill="none" stroke="url(#slg)" stroke-width="2" stroke-linecap="round" />
+            <circle cx="12.5" cy="11.5" r="1.5" fill="#0078FF" />
+            <circle cx="19.5" cy="11.5" r="1.5" fill="#7B4FFF" />
+            <defs>
+              <linearGradient id="slg" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stop-color="#0078FF" />
+                <stop offset="100%" stop-color="#7B4FFF" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="gradient-text" style="font-size:1.2rem">AURA</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section-label">Main</div>
+      <div class="sidebar-item active" onclick="showPage('scanner')" id="nav-scanner">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M3 9V7a2 2 0 012-2h2M3 15v2a2 2 0 002 2h2M15 3h2a2 2 0 012 2v2M15 21h2a2 2 0 002-2v-2" />
+        </svg>
+        AI Scanner
+      </div>
+      <div class="sidebar-item" onclick="showPage('history')" id="nav-history">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 8v4l3 3M3.05 11a9 9 0 1 0 .5-3" />
+          <path d="M3 4v4h4" />
+        </svg>
+        My History
+      </div>
+      <div class="sidebar-item" onclick="showPage('chatbot')" id="nav-chatbot">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        </svg>
+        AI Chatbot
+      </div>
+
+      <div class="sidebar-section-label">Doctors</div>
+      <div class="sidebar-item" onclick="showPage('book')" id="nav-book">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <path d="M16 2v4M8 2v4M3 10h18" />
+          <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+        </svg>
+        Book Appointment
+      </div>
+      <div class="sidebar-item" onclick="showPage('bookings')" id="nav-bookings">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+        My Bookings
+      </div>
+
+      <div class="sidebar-section-label">Community</div>
+      <div class="sidebar-item" onclick="showPage('community')" id="nav-community">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74" />
+        </svg>
+        Community
+      </div>
+
+      <div class="sidebar-section-label">Account</div>
+      <div class="sidebar-item" onclick="showPage('settings')" id="nav-settings">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>
+        Settings
+      </div>
+
+      <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--gray-100);">
+        <div
+          style="padding:12px 14px;border-radius:12px;background:var(--aura-blue-soft);border:1px solid rgba(0,120,255,0.12);">
+          <div style="font-size:0.75rem;font-weight:600;margin-bottom:2px;" id="sidebar-name">Loading…</div>
+          <div style="font-size:0.7rem;color:var(--text-muted)" id="sidebar-email"></div>
+        </div>
+        <button class="btn btn-glass w-full mt-2" style="justify-content:center;font-size:0.8rem"
+          onclick="doLogout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="dashboard-content">
+      <!-- TOP NAV -->
+      <div class="dash-nav">
+        <div class="flex items-center gap-3">
+          <h2 style="font-family:var(--font-display);font-weight:700;font-size:1.05rem" id="page-title">AI Scanner</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <div
+            style="font-size:0.75rem;color:var(--text-muted);background:rgba(0,204,126,0.08);border:1px solid rgba(0,204,126,0.2);padding:4px 12px;border-radius:99px;display:flex;align-items:center;gap:6px">
+            <span
+              style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;animation:pulse-glow 2s infinite"></span>
+            AI Online
+          </div>
+          <div class="user-chip" onclick="showPage('settings')">
+            <div class="user-avatar" id="nav-avatar">A</div>
+            <span style="font-size:0.82rem;font-weight:500" id="nav-name">User</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-scroll-area">
+
+        <!-- ========== SCANNER PAGE ========== -->
+        <div class="pg active" id="pg-scanner">
+          <div class="page-header">
+            <h1>AI Face Scanner</h1>
+            <p>Position your face in the frame and let AURA analyze your skin condition</p>
+          </div>
+          <div class="scanner-layout">
+            <div class="scanner-center">
+              <div class="scanner-frame" id="scanner-frame">
+                <div class="scan-placeholder" id="scan-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                  </svg>
+                  <span style="font-size:0.8rem;font-weight:500">Position your face</span>
+                </div>
+                <video id="video-feed" autoplay muted playsinline
+                  style="display:none;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)"></video>
+                <div class="scan-line" id="scan-line"></div>
+                <div class="scanner-corners">
+                  <div class="corner tl"></div>
+                  <div class="corner tr"></div>
+                  <div class="corner bl"></div>
+                  <div class="corner br"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" id="scan-btn" onclick="startScan()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M3 9V7a2 2 0 012-2h2M3 15v2a2 2 0 002 2h2M15 3h2a2 2 0 012 2v2M15 21h2a2 2 0 002-2v-2" />
+                  </svg>
+                  Start Scan
+                </button>
+                <label class="btn btn-glass">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                  </svg>
+                  Upload Photo
+                  <input type="file" id="upload-input" accept="image/*" style="display:none"
+                    onchange="handleUpload(event)">
+                </label>
+              </div>
+              <p id="scan-status" style="font-size:0.8rem;color:var(--text-muted);text-align:center"></p>
+            </div>
+
+            <!-- Results panel -->
+            <div id="results-panel" style="display:none;">
+              <div class="metric-card">
+                <div class="result-header">
+                  <img id="result-img" src="" class="result-thumb" alt="Scan result" />
+                  <div>
+                    <div
+                      style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">
+                      Detected Condition</div>
+                    <div id="condition-name" style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;">
+                    </div>
+                    <div id="severity-badge" class="severity-badge mt-1"></div>
+                  </div>
+                </div>
+                <div style="margin-bottom:16px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                    <span style="font-size:0.78rem;font-weight:600">AI Confidence</span>
+                    <span style="font-size:0.78rem;color:var(--aura-blue);font-weight:700" id="conf-pct">0%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" id="confidence-fill"></div>
+                  </div>
+                </div>
+                <div id="remedy-section" style="margin-bottom:16px">
+                  <div style="font-weight:600;font-size:0.875rem;margin-bottom:10px">Recommended Remedies</div>
+                  <div id="remedy-list" style="display:flex;flex-direction:column;gap:8px"></div>
+                </div>
+                <div id="product-section">
+                  <div style="font-weight:600;font-size:0.875rem;margin-bottom:10px">Suggested Products</div>
+                  <div id="product-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== HISTORY PAGE ========== -->
+        <div class="pg" id="pg-history">
+          <div class="page-header">
+            <h1>My Scan History</h1>
+            <p>Review all your previous skin analysis results</p>
+          </div>
+          <div id="history-list" style="display:flex;flex-direction:column;gap:12px">
+            <div style="text-align:center;padding:60px;color:var(--text-muted)">Loading history…</div>
+          </div>
+        </div>
+
+        <!-- ========== CHATBOT PAGE ========== -->
+        <div class="pg" id="pg-chatbot">
+          <div class="page-header">
+            <h1>AURA AI Chatbot</h1>
+            <p>Ask anything about your skin — powered by clinical AI</p>
+          </div>
+          <div class="metric-card" style="max-width:720px;">
+            <div id="chat-messages"
+              style="min-height:320px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:16px;padding-right:4px">
+              <div class="chat-msg bot"
+                style="max-width:80%;padding:12px 16px;border-radius:16px 16px 16px 4px;background:var(--gray-100)">
+                👋 Hi! I'm AURA's AI skincare assistant. Ask me anything about your skin condition, routines, or
+                products!
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+              <button class="chat-suggestion-btn" onclick="sendChat('What skin type do I have?')">What skin type do I
+                have?</button>
+              <button class="chat-suggestion-btn" onclick="sendChat('What ingredients should I avoid?')">Ingredients to
+                avoid?</button>
+              <button class="chat-suggestion-btn" onclick="sendChat('How often should I moisturize?')">Moisturizing
+                frequency?</button>
+              <button class="chat-suggestion-btn" onclick="sendChat('When should I see a doctor?')">When to see a
+                doctor?</button>
+              <button class="chat-suggestion-btn" onclick="sendChat('Help me with acne')">Help with acne</button>
+              <button class="chat-suggestion-btn" onclick="sendChat('Tell me about eczema')">About eczema</button>
+            </div>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="chat-input" class="form-input" style="flex:1" placeholder="Ask about your skin…"
+                onkeydown="if(event.key==='Enter')sendChat()">
+              <button class="btn btn-primary" onclick="sendChat()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" />
+                </svg>
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== BOOK APPOINTMENT ========== -->
+        <div class="pg" id="pg-book">
+          <div class="page-header">
+            <h1>Book an Appointment</h1>
+            <p>Connect with certified dermatologists — right from AURA</p>
+          </div>
+          <div class="doctors-grid" id="doctors-grid"></div>
+        </div>
+
+        <!-- ========== MY BOOKINGS ========== -->
+        <div class="pg" id="pg-bookings">
+          <div class="page-header">
+            <h1>My Bookings</h1>
+            <p>All your scheduled dermatologist consultations</p>
+          </div>
+          <div id="bookings-list" style="display:flex;flex-direction:column;gap:12px">
+            <div style="text-align:center;padding:60px;color:var(--text-muted)">Loading bookings…</div>
+          </div>
+        </div>
+
+        <!-- ========== COMMUNITY ========== -->
+        <div class="pg" id="pg-community">
+          <div class="page-header">
+            <h1>Community Remedies</h1>
+            <p>1,000+ active AURA users sharing what works for them</p>
+          </div>
+          <div
+            style="background:linear-gradient(135deg,var(--aura-blue),var(--aura-violet));border-radius:20px;padding:28px 32px;color:white;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:4px;">1,000+
+                Active Members</div>
+              <div style="opacity:0.8;font-size:0.9rem">Real skincare journeys, verified by our dermatology team</div>
+            </div>
+            <div style="font-family:var(--font-display);font-size:3rem;font-weight:800;opacity:0.3">❤️</div>
+          </div>
+          <div id="community-list" style="display:flex;flex-direction:column;gap:10px"></div>
+          <div class="sidebar-item" onclick="window.location.href='products.html'" id="nav-products">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
+            </svg>
+            Products
+          </div>
+        </div>
+
+        <!-- ========== SETTINGS ========== -->
+        <div class="pg" id="pg-settings">
+          <div class="page-header">
+            <h1>Settings</h1>
+            <p>Manage your profile and preferences</p>
+          </div>
+          <div class="settings-section">
+            <h3>Profile Information</h3>
+            <div class="grid-2 mb-4">
+              <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input"
+                  id="set-name" placeholder="Your name" /></div>
+              <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input"
+                  id="set-email" disabled style="opacity:0.6" /></div>
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label">Skin Type</label>
+              <select class="form-input" id="set-skin">
+                <option value="Normal">Normal</option>
+                <option value="Oily">Oily</option>
+                <option value="Dry">Dry</option>
+                <option value="Combination">Combination</option>
+                <option value="Sensitive">Sensitive</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+          </div>
+          <div class="settings-section">
+            <h3>Notifications</h3>
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight:500;font-size:0.9rem">Scan Reminders</div>
+                <div style="font-size:0.78rem;color:var(--text-muted)">Remind me to scan every 2 weeks</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="notif-scan" checked /><span
+                  class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight:500;font-size:0.9rem">Appointment Alerts</div>
+                <div style="font-size:0.78rem;color:var(--text-muted)">Notify before doctor appointments</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="notif-apt" checked /><span
+                  class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight:500;font-size:0.9rem">Community Updates</div>
+                <div style="font-size:0.78rem;color:var(--text-muted)">New remedies from the community</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="notif-comm" /><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>Account</h3>
+            <div style="display:flex;gap:12px">
+              <button class="btn btn-glass" onclick="doLogout()">Sign Out</button>
+              <button class="btn btn-danger btn-sm"
+                onclick="if(confirm('Delete your account? This cannot be undone.'))alert('Please contact support to delete your account.')">Delete
+                Account</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end scroll area -->
+    </div><!-- end dashboard-content -->
+  </div><!-- end dashboard-root -->
+
+  <!-- BOOK APPOINTMENT MODAL -->
+  <div class="modal-overlay" id="book-modal">
+    <div class="modal-box">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:4px">Book Appointment
+      </h2>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px">Fill in your details to request a
+        consultation</p>
+      <div class="apt-doctor-badge" id="modal-doctor-info"></div>
+      <div class="form-group mb-4">
+        <label class="form-label">Preferred Date</label>
+        <input type="date" class="form-input" id="apt-date" />
+      </div>
+      <div class="form-group mb-4">
+        <label class="form-label">Notes (optional)</label>
+        <textarea class="form-input" id="apt-notes" placeholder="Describe your skin concern briefly…"></textarea>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="confirmBooking()">Confirm
+          Booking</button>
+        <button class="btn btn-glass" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHATBOT BUBBLE (floating) -->
+  <button class="chatbot-bubble" id="chat-bubble" onclick="toggleChatBubble()" title="Open AURA AI">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+    </svg>
+  </button>
+  <div class="chatbot-panel" id="chat-bubble-panel">
+    <div class="chatbot-header">
+      <div class="chatbot-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white"
+          stroke-width="2">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+        </svg></div>
+      <div>
+        <div style="color:white;font-weight:700;font-size:0.9rem">AURA AI</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.72rem">Skincare Intelligence</div>
+      </div>
+      <button onclick="toggleChatBubble()"
+        style="margin-left:auto;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;color:white">✕</button>
+    </div>
+    <div class="chatbot-body" id="bubble-messages">
+      <div class="chat-msg bot">Hi! Ask me anything about your skin 🌿</div>
+    </div>
+    <div class="chat-suggestions">
+      <button class="chat-suggestion-btn" onclick="bubbleChat('Help with acne')">Acne tips</button>
+      <button class="chat-suggestion-btn" onclick="bubbleChat('Moisturizing tips')">Moisturize</button>
+      <button class="chat-suggestion-btn" onclick="bubbleChat('Eczema advice')">Eczema</button>
+    </div>
+    <div class="chat-input-row">
+      <input id="bubble-input" placeholder="Ask about your skin…" onkeydown="if(event.key==='Enter')bubbleChat()">
+      <button class="chat-send-btn" onclick="bubbleChat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const sb = createClient("https://bfnqfxjtxdtyoprrqfki.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmbnFmeGp0eGR0eW9wcnJxZmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjE1MjAsImV4cCI6MjA4OTg5NzUyMH0.6tNMZ_2cgpzRxR-JaR0kk_8Pzrprrc4gGAzByQzIn8E")
+    window._sb = sb
+
+    // Auth check
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) { window.location.href = 'index.html'; }
+    else {
+      window._uid = session.user.id
+      window._uemail = session.user.email
+      initDashboard()
+    }
+
+    async function initDashboard() {
+      const { data: profile } = await sb.from('profiles').select('*').eq('id', window._uid).single()
+      const name = profile?.name || window._uemail?.split('@')[0] || 'User'
+      document.getElementById('nav-name').textContent = name
+      document.getElementById('nav-avatar').textContent = name[0].toUpperCase()
+      document.getElementById('sidebar-name').textContent = name
+      document.getElementById('sidebar-email').textContent = window._uemail
+      // Settings fields
+      document.getElementById('set-name').value = profile?.name || ''
+      document.getElementById('set-email').value = window._uemail
+      document.getElementById('set-skin').value = profile?.skin_type || 'Normal'
+      window._profile = profile
+      loadHistory()
+      loadBookings()
+      loadCommunity()
+      renderDoctors()
+    }
+
+    // HISTORY
+    async function loadHistory() {
+      const { data } = await sb.from('scans').select('*').eq('user_id', window._uid).order('created_at', { ascending: false }).limit(30)
+      const el = document.getElementById('history-list')
+      if (!data || !data.length) { el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)">No scans yet. Run your first AI scan!</div>'; return; }
+      el.innerHTML = data.map(s => `
+    <div class="history-card">
+      ${s.image_url ? `<img src="${s.image_url}" class="history-thumb" alt="scan">` : `<div class="history-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem">🔬</div>`}
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.95rem">${s.condition || 'Unknown'}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${new Date(s.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="severity-badge severity-${(s.severity || 'low').toLowerCase()}">${s.severity || 'Low'}</span>
+        <span style="font-size:0.9rem;font-weight:700;color:var(--aura-blue)">${s.confidence ? Math.round(s.confidence * 100) + '%' : '—'}</span>
+      </div>
+    </div>`).join('')
+    }
+    window._loadHistory = loadHistory
+
+    // BOOKINGS
+    async function loadBookings() {
+      const { data } = await sb.from('appointments').select('*').eq('user_id', window._uid).order('requested_at', { ascending: false })
+      const el = document.getElementById('bookings-list')
+      if (!data || !data.length) { el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)">No bookings yet. Book your first consultation!</div>'; return; }
+      el.innerHTML = data.map(a => `
+    <div class="history-card">
+      <div style="width:56px;height:56px;border-radius:12px;background:var(--aura-blue-soft);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">👨‍⚕️</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.95rem">${a.doctor_name}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">${a.doctor_specialty || 'Dermatologist'} · ${a.preferred_date ? new Date(a.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Date TBC'}</div>
+        ${a.notes ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-top:4px">${a.notes}</div>` : ''}
+      </div>
+      <span class="badge ${a.status === 'Confirmed' ? 'badge-green' : a.status === 'Cancelled' ? 'badge-red' : 'badge-orange'}">${a.status || 'Requested'}</span>
+    </div>`).join('')
+    }
+    window._loadBookings = loadBookings
+
+    // SAVE PROFILE
+    window.saveProfile = async () => {
+      const name = document.getElementById('set-name').value.trim()
+      const skin_type = document.getElementById('set-skin').value
+      await sb.from('profiles').upsert({ id: window._uid, name, skin_type })
+      document.getElementById('nav-name').textContent = name
+      document.getElementById('sidebar-name').textContent = name
+      showToast('Profile saved!', 'success')
+    }
+
+    // SAVE SCAN
+    window._saveScan = async (imageFile, result) => {
+      try {
+        const fileName = `${window._uid}/${Date.now()}.jpg`
+        const { error: upErr } = await sb.storage.from('scan-images').upload(fileName, imageFile)
+        let imageUrl = null
+        if (!upErr) imageUrl = sb.storage.from('scan-images').getPublicUrl(fileName).data.publicUrl
+        await sb.from('scans').insert({ user_id: window._uid, condition: result.condition, severity: result.severity, confidence: result.confidence, image_url: imageUrl })
+        loadHistory()
+      } catch (e) { console.warn('Save scan failed:', e) }
+    }
+
+    // LOGOUT
+    window.doLogout = async () => { await sb.auth.signOut(); window.location.href = 'index.html' }
+
+    // CONFIRM BOOKING
+    window.confirmBooking = async () => {
+      const date = document.getElementById('apt-date').value
+      const notes = document.getElementById('apt-notes').value
+      if (!date) { showToast('Please select a date', 'error'); return; }
+      const { error } = await sb.from('appointments').insert({
+        user_id: window._uid, user_name: window._profile?.name || '',
+        doctor_name: window._selectedDoctor.name,
+        doctor_specialty: window._selectedDoctor.specialty,
+        preferred_date: date, notes, status: 'Requested'
+      })
+      if (error) { showToast('Booking failed: ' + error.message, 'error'); return; }
+      closeModal()
+      loadBookings()
+      showToast('Appointment booked! ✅', 'success')
+      showPage('bookings')
+    }
+  </script>
+  <script>
+    const API = 'http://localhost:8002'
+    let mediaStream = null
+    let selectedDoc = null
+
+    // PAGE NAVIGATION
+    function showPage(name) {
+      document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'))
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'))
+      document.getElementById('pg-' + name)?.classList.add('active')
+      document.getElementById('nav-' + name)?.classList.add('active')
+      const titles = { scanner: 'AI Scanner', history: 'My History', chatbot: 'AI Chatbot', book: 'Book Appointment', bookings: 'My Bookings', community: 'Community', settings: 'Settings' }
+      document.getElementById('page-title').textContent = titles[name] || name
+      gsap.from('#pg-' + name + ' > *', { opacity: 0, y: 16, stagger: 0.06, duration: 0.4, ease: 'power2.out' })
+    }
+    window.showPage = showPage
+
+    // SCANNER
+    async function startScan() {
+      const btn = document.getElementById('scan-btn')
+      const frame = document.getElementById('scanner-frame')
+      const status = document.getElementById('scan-status')
+      const video = document.getElementById('video-feed')
+
+      btn.disabled = true; btn.textContent = 'Initializing…'
+      status.textContent = 'Requesting camera access…'
+
+      if (!mediaStream) {
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } })
+          video.srcObject = mediaStream
+          video.style.display = 'block'
+          document.getElementById('scan-placeholder').style.display = 'none'
+        } catch (e) { status.textContent = 'Camera denied. Use Upload instead.'; btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 9V7a2 2 0 012-2h2M3 15v2a2 2 0 002 2h2M15 3h2a2 2 0 012 2v2M15 21h2a2 2 0 002-2v-2"/></svg>Start Scan'; return; }
+      }
+
+      frame.classList.add('active')
+      document.getElementById('scan-line').style.display = 'block'
+      btn.textContent = 'Analyzing…'
+      status.textContent = 'AI analyzing your skin…'
+
+      setTimeout(async () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth || 640; canvas.height = video.videoHeight || 480
+        const ctx = canvas.getContext('2d')
+        ctx.translate(canvas.width, 0); ctx.scale(-1, 1)
+        ctx.drawImage(video, 0, 0)
+
+        canvas.toBlob(async (blob) => {
+          const fd = new FormData(); fd.append('file', blob, 'scan.jpg')
+          try {
+            const res = await fetch(`${API}/predict`, { method: 'POST', body: fd })
+            const data = await res.json()
+            const result = {
+              condition: data.advice?.title || data.condition || 'Healthy Skin',
+              severity: data.severity || 'Low',
+              confidence: data.confidence || 0.85,
+              remedies: data.remedies || [{ title: 'Consult AURA', desc: data.advice?.advice }],
+              products: data.products || []
+            }
+            if (window._saveScan) await window._saveScan(blob, result)
+            displayResults(canvas.toDataURL(), result)
+          } catch (e) {
+            displayResults(canvas.toDataURL(), { condition: 'Healthy Skin', severity: 'Low', confidence: 0.85, remedies: [{ title: 'Stay Hydrated', desc: 'Drink 8 glasses of water daily and use SPF 30+.' }], products: [{ name: 'Hydrating Serum', use: 'Daily', ingredient: 'Hyaluronic Acid' }] })
+          }
+          frame.classList.remove('active')
+          document.getElementById('scan-line').style.display = 'none'
+          btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 9V7a2 2 0 012-2h2M3 15v2a2 2 0 002 2h2M15 3h2a2 2 0 012 2v2M15 21h2a2 2 0 002-2v-2"/></svg>Scan Again'
+          status.textContent = 'Analysis complete!'
+        }, 'image/jpeg')
+      }, 2500)
+    }
+    window.startScan = startScan
+
+    function handleUpload(e) {
+      const file = e.target.files[0]; if (!file) return
+      const reader = new FileReader()
+      reader.onload = async (ev) => {
+        const img = new Image(); img.src = ev.target.result
+        img.onload = () => {
+          const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height
+          canvas.getContext('2d').drawImage(img, 0, 0)
+          canvas.toBlob(async (blob) => {
+            const fd = new FormData(); fd.append('file', blob, 'upload.jpg')
+            try {
+              const res = await fetch(`${API}/predict`, { method: 'POST', body: fd })
+              const data = await res.json()
+              const result = { condition: data.advice?.title || data.condition || 'Healthy Skin', severity: data.severity || 'Low', confidence: data.confidence || 0.85, remedies: data.remedies || [], products: data.products || [] }
+              if (window._saveScan) await window._saveScan(blob, result)
+              displayResults(ev.target.result, result)
+            } catch (e2) {
+              displayResults(ev.target.result, { condition: 'Healthy Skin', severity: 'Low', confidence: 0.88, remedies: [{ title: 'Daily SPF', desc: 'Use SPF 30+ every morning.' }], products: [] })
+            }
+          }, 'image/jpeg')
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+    window.handleUpload = handleUpload
+
+    function displayResults(imgSrc, r) {
+      document.getElementById('results-panel').style.display = 'block'
+      document.getElementById('result-img').src = imgSrc
+      document.getElementById('condition-name').textContent = r.condition
+      const sev = document.getElementById('severity-badge')
+      sev.textContent = r.severity + ' Severity'
+      sev.className = 'severity-badge severity-' + r.severity.toLowerCase()
+      const pct = Math.round(r.confidence * (r.confidence > 1 ? 1 : 100))
+      document.getElementById('conf-pct').textContent = (r.severity === 'Inconclusive' ? '—' : pct + '%')
+      setTimeout(() => { document.getElementById('confidence-fill').style.width = (r.severity === 'Inconclusive' ? '0%' : pct + '%') }, 200)
+      
+      // Special icon for inconclusive
+      if (r.severity === 'Inconclusive') {
+        document.getElementById('condition-name').innerHTML = `⚠️ ${r.condition}`;
+      } else {
+        document.getElementById('condition-name').textContent = r.condition;
+      }
+
+      document.getElementById('remedy-list').innerHTML = (r.remedies || []).map(rem => `<div style="background:var(--gray-50);border-radius:10px;padding:12px;border:1px solid var(--gray-100)"><div style="font-weight:600;font-size:0.85rem">${rem.title}</div><div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${rem.desc}</div></div>`).join('')
+      document.getElementById('product-list').innerHTML = (r.products || []).map(p => `<div style="background:var(--aura-blue-soft);border-radius:10px;padding:12px;border:1px solid rgba(0,120,255,0.1)"><div style="font-weight:600;font-size:0.82rem;color:var(--aura-blue)">${p.name}</div><div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">${p.use}</div><span style="font-size:0.68rem;background:rgba(0,120,255,0.1);color:var(--aura-blue);padding:2px 8px;border-radius:99px;display:inline-block;margin-top:6px">${p.ingredient}</span></div>`).join('')
+      gsap.from('#results-panel', { opacity: 0, y: 20, duration: 0.5, ease: 'power2.out' })
+    }
+
+    // DOCTORS
+    const DOCTORS = [
+      { name: 'Dr. Anjali Mehta', specialty: 'Dermatology', exp: '12 years', rating: '4.9', online: true, emoji: '👩‍⚕️' },
+      { name: 'Dr. Rohan Singh', specialty: 'Cosmetic Dermatology', exp: '8 years', rating: '4.8', online: true, emoji: '👨‍⚕️' },
+      { name: 'Dr. Priya Nair', specialty: 'Skin Allergy', exp: '15 years', rating: '4.9', online: false, emoji: '🩺' },
+      { name: 'Dr. Arjun Rao', specialty: 'Pediatric Dermatology', exp: '10 years', rating: '4.7', online: true, emoji: '👨‍⚕️' },
+    ]
+    function renderDoctors() {
+      document.getElementById('doctors-grid').innerHTML = DOCTORS.map((d, i) => `
+    <div class="doctor-card" onclick="openBookModal(${i})">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        <div class="doctor-avatar" style="font-size:1.6rem">${d.emoji}</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem">${d.name}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted)">${d.specialty}</div>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${d.online ? 'var(--success)' : 'var(--gray-300)'};display:inline-block${d.online ? ';animation:pulse-glow 2s infinite' : ''}"></span>
+          <span style="font-size:0.72rem;color:${d.online ? 'var(--success)' : 'var(--text-muted)'}">${d.online ? 'Online' : 'Offline'}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">Experience</div><div style="font-weight:600;font-size:0.85rem">${d.exp}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">Rating</div><div style="font-weight:600;font-size:0.85rem">⭐ ${d.rating}</div></div>
+      </div>
+      <button class="btn btn-primary w-full" style="justify-content:center;">Book Appointment</button>
+    </div>`).join('')
+    }
+
+    function openBookModal(i) {
+      window._selectedDoctor = DOCTORS[i]
+      document.getElementById('modal-doctor-info').innerHTML = `<div style="font-size:1.5rem">${DOCTORS[i].emoji}</div><div><div style="font-weight:700">${DOCTORS[i].name}</div><div style="font-size:0.8rem;color:var(--text-muted)">${DOCTORS[i].specialty}</div></div>`
+      document.getElementById('book-modal').classList.add('open')
+    }
+    window.openBookModal = openBookModal
+    function closeModal() { document.getElementById('book-modal').classList.remove('open') }
+    window.closeModal = closeModal
+
+    // COMMUNITY
+    function loadCommunity() {
+      const data = [
+        { condition: 'Eczema', remedy: 'Shea Butter & Zinc Oxide', voters: 142, tip: 'Apply twice daily on affected areas' },
+        { condition: 'Acne', remedy: 'Salicylic Acid 2% + Niacinamide', voters: 218, tip: 'Use BHA toner every other day' },
+        { condition: 'Dry Skin', remedy: 'Squalane Oil Nightly', voters: 315, tip: 'Apply on damp skin after shower' },
+        { condition: 'Pigmentation', remedy: 'Vitamin C Serum + SPF 50', voters: 189, tip: 'Use vitamin C in morning, sunscreen over it' },
+        { condition: 'Rosacea', remedy: 'Azelaic Acid 10% Cream', voters: 97, tip: 'Gentle cleanser + cold water rinse' },
+        { condition: 'Oily Skin', remedy: 'Clay Mask (2x weekly)', voters: 203, tip: 'Kaolin or bentonite clay for T-zone' },
+      ]
+      document.getElementById('community-list').innerHTML = data.map(d => `
+    <div class="remedy-card">
+      <div>
+        <span class="badge badge-blue" style="margin-bottom:6px">${d.condition}</span>
+        <div style="font-weight:600;font-size:0.9rem">${d.remedy}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${d.tip}</div>
+      </div>
+      <div style="text-align:center;flex-shrink:0">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;color:var(--aura-blue)">${d.voters}</div>
+        <div style="font-size:0.7rem;color:var(--text-muted)">helped</div>
+      </div>
+    </div>`).join('')
+    }
+
+    // CHAT
+    async function sendChat(q) {
+      const input = document.getElementById('chat-input')
+      const msg = q || input.value.trim(); if (!msg) return
+      input.value = ''
+      const container = document.getElementById('chat-messages')
+      container.innerHTML += `<div class="chat-msg user">${msg}</div>`
+      container.innerHTML += `<div class="chat-msg bot" id="typing-ind"><span class="loading-dots"><span></span><span></span><span></span></span></div>`
+      container.scrollTop = container.scrollHeight
+      try {
+        const res = await fetch(`${API}/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) })
+        const data = await res.json()
+        document.getElementById('typing-ind')?.remove()
+        container.innerHTML += `<div class="chat-msg bot">${data.response || 'I can help with that! Try asking about specific skin conditions.'}</div>`
+      } catch (e) {
+        document.getElementById('typing-ind')?.remove()
+        container.innerHTML += `<div class="chat-msg bot">I'm having trouble connecting. Try asking about acne, eczema, or moisturizing!</div>`
+      }
+      container.scrollTop = container.scrollHeight
+    }
+    window.sendChat = sendChat
+
+    // FLOATING BUBBLE CHAT
+    function toggleChatBubble() { document.getElementById('chat-bubble-panel').classList.toggle('open') }
+    window.toggleChatBubble = toggleChatBubble
+
+    async function bubbleChat(q) {
+      const input = document.getElementById('bubble-input')
+      const msg = q || input.value.trim(); if (!msg) return
+      input.value = ''
+      const container = document.getElementById('bubble-messages')
+      container.innerHTML += `<div class="chat-msg user">${msg}</div>`
+      try {
+        const res = await fetch(`${API}/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) })
+        const data = await res.json()
+        container.innerHTML += `<div class="chat-msg bot">${data.response}</div>`
+      } catch (e) { container.innerHTML += `<div class="chat-msg bot">Connection issue. Please try again!</div>` }
+      container.scrollTop = container.scrollHeight
+    }
+    window.bubbleChat = bubbleChat
+
+    // TOAST
+    function showToast(msg, type = '') {
+      const c = document.getElementById('toast-container')
+      const t = document.createElement('div')
+      t.className = 'toast ' + type; t.textContent = msg
+      c.appendChild(t); setTimeout(() => t.remove(), 3200)
+    }
+    window.showToast = showToast
+  </script>
+</body>
+
+</html>

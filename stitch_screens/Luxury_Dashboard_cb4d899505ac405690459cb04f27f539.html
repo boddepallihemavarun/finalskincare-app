@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AURA | Immersive Skincare Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&amp;family=Manrope:wght@200;300;400;500;600;700&amp;family=Noto+Serif:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed": "#fddeb5",
+                        "on-tertiary-fixed-variant": "#3b475c",
+                        "on-primary-container": "#513d1f",
+                        "on-secondary-fixed": "#221a0f",
+                        "secondary": "#d2c4b2",
+                        "primary": "#e1c39b",
+                        "on-primary-fixed-variant": "#584325",
+                        "inverse-primary": "#715b3a",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "tertiary": "#bcc8e2",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed-dim": "#d2c4b2",
+                        "outline": "#998f84",
+                        "on-background": "#e5e2e1",
+                        "primary-fixed-dim": "#e0c29a",
+                        "inverse-surface": "#e5e2e1",
+                        "outline-variant": "#4d463c",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#0f1c2f",
+                        "on-primary": "#3f2d11",
+                        "on-primary-fixed": "#281901",
+                        "on-tertiary-container": "#354156",
+                        "surface-dim": "#131313",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary": "#253145",
+                        "surface": "#131313",
+                        "tertiary-fixed-dim": "#bbc7e1",
+                        "background": "#131313",
+                        "on-error": "#690005",
+                        "secondary-container": "#51483a",
+                        "secondary-fixed": "#efe0cd",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#353534",
+                        "on-surface-variant": "#d0c5b8",
+                        "on-secondary": "#372f22",
+                        "surface-tint": "#e0c29a",
+                        "tertiary-fixed": "#d7e3fd",
+                        "tertiary-container": "#a1adc6",
+                        "on-secondary-fixed-variant": "#4f4538",
+                        "surface-variant": "#353534",
+                        "error-container": "#93000a",
+                        "primary-container": "#c4a882",
+                        "on-surface": "#e5e2e1",
+                        "on-secondary-container": "#c4b6a5",
+                        "surface-bright": "#3a3939"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif", "serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"],
+                        "display": ["Cormorant Garamond", "serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        .scroll-snap-y {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        .snap-section {
+            scroll-snap-align: start;
+            height: 100vh;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .mesh-gradient {
+            background-color: #131313;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(225, 195, 155, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(196, 168, 130, 0.08) 0px, transparent 50%);
+        }
+        .pulsing-glow {
+            box-shadow: 0 0 0 0 rgba(225, 195, 155, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(225, 195, 155, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(225, 195, 155, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 195, 155, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30">
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 dark:bg-[#131313]/70 backdrop-blur-xl border-b border-white/10 shadow-[0_20px_40px_rgba(196,168,130,0.08)] flex justify-between items-center px-8 h-20 w-full">
+<button class="text-[#e1c39b] dark:text-[#e1c39b] hover:text-[#e1c39b] transition-all duration-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-['Cormorant_Garamond'] text-2xl tracking-[0.2em] uppercase text-[#e1c39b] font-light">AURA</h1>
+<button class="text-[#e1c39b] dark:text-[#e1c39b] hover:text-[#e1c39b] transition-all duration-500">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+</header>
+<!-- Main Content with Scroll Snap -->
+<main class="scroll-snap-y mesh-gradient">
+<!-- Section 1: User Profile & Status -->
+<section class="snap-section relative flex flex-col justify-center px-6 pt-24 pb-32 overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+<div class="relative z-10 flex flex-col gap-8">
+<div class="space-y-2">
+<p class="font-label text-xs tracking-[0.3em] uppercase text-primary">Good Morning</p>
+<h2 class="font-display text-4xl text-on-surface">Evelyn Vance</h2>
+</div>
+<!-- Profile Card -->
+<div class="bg-surface-container/60 backdrop-blur-2xl p-6 rounded-lg border border-white/5 shadow-xl">
+<div class="flex items-start justify-between mb-8">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="User Profile" class="w-16 h-16 rounded-full object-cover border-2 border-primary/20" data-alt="close-up portrait of a woman with radiant skin in soft cinematic lighting with warm golden tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3X7cY5dXCb8Hwk3QZ6tmSZUDLR0UHsftwkvIA2uW-muVj2RqjsvGL1AfCydbbxC8N-Vo2Ww2vNCIfGd87UIK6z_rwt7lcNU8x146ow8_mhNfrES4aiZGm8WzJdGnC4ADJRSQ66UgzD8WpDiGK-splvjlPV72KaQTH4CZBiZqIes75_5b43VPlK-KN86eoQjcbZONvHCP4ksgd0YtSE14_L_oU6NkHZyUh3jWXilGlobWSz3milvMsZUidg33IqSAotbXULlmCpqs"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center pulsing-glow">
+<span class="material-symbols-outlined text-[12px] text-on-primary" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<div>
+<h3 class="font-display text-xl text-primary-fixed-dim">Complexion Archetype</h3>
+<p class="text-xs font-label tracking-widest text-on-surface-variant uppercase">Radiant Luminescence • Dry-Combo</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 border-t border-white/5 pt-6">
+<div class="text-center">
+<p class="text-[10px] font-label tracking-tighter text-on-surface-variant uppercase mb-1">Hydration</p>
+<p class="font-display text-lg text-primary">84%</p>
+</div>
+<div class="text-center border-x border-white/5">
+<p class="text-[10px] font-label tracking-tighter text-on-surface-variant uppercase mb-1">Texture</p>
+<p class="font-display text-lg text-primary">Smooth</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] font-label tracking-tighter text-on-surface-variant uppercase mb-1">Ritual</p>
+<p class="font-display text-lg text-primary">Day 12</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low/40 p-4 rounded-lg border border-white/5">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                        The humidity is high today. We suggest switching to the <span class="text-primary">Velvet Essence</span> for a lighter finish.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Section 2: Morning Ritual -->
+<section class="snap-section relative flex flex-col justify-center px-6 pt-24 pb-32">
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<h2 class="font-display text-3xl">Morning Ritual</h2>
+<p class="font-label text-[10px] tracking-[0.2em] text-on-surface-variant uppercase">Phase 01: Purification</p>
+</div>
+<span class="font-display text-primary text-2xl">03/05</span>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<!-- Ritual Card 1 -->
+<div class="relative group overflow-hidden rounded-lg">
+<img alt="Ritual Product" class="w-full h-64 object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="luxury skincare bottle made of amber glass on a dark stone surface with soft morning light hitting the condensation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgQnlG-f1MXiynbAmz3xx3ewaKD2LRPti0vpyt0FQCDQqnhBv6e2P6zVEp6viyQ6fXzBUZYAMcHPQdlTgUQtHm5v3X4zeq8F3hJ6Ulfyt9gMo06ImPFLVmbbCyMcePt6y_t2nfUQMXCYZYKRvlvz6-KtbXy5R0Jim6dK-ZlLVJiuWu2QbdbBQyABIGCu_Vw294yNjgfIyof8qMm_OvX04qq_7GRB45maxTrLxqFeVciNYel2oOQ2YbkUVfZbLxYIjtAsLz5V5PcLo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent flex flex-col justify-end p-6">
+<p class="text-[10px] font-label tracking-[0.2em] text-primary uppercase mb-2">Next Step</p>
+<h4 class="font-display text-2xl mb-1">Luminous Oil Cleanser</h4>
+<div class="flex items-center justify-between">
+<p class="text-xs text-on-surface-variant italic">Gently massage for 60 seconds</p>
+<button class="bg-primary px-4 py-2 text-[10px] font-label tracking-widest text-on-primary uppercase transition-transform active:scale-95">Complete</button>
+</div>
+</div>
+</div>
+<!-- Ritual Card 2 - Preview -->
+<div class="bg-surface-container-high/40 p-4 rounded-lg border border-white/5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">opacity</span>
+</div>
+<div>
+<p class="text-xs font-label tracking-widest text-on-surface-variant uppercase">Phase 02</p>
+<h5 class="font-display text-lg">Rosewater Mist</h5>
+</div>
+</div>
+<span class="material-symbols-outlined text-white/20">lock</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Consultant Match -->
+<section class="snap-section relative flex flex-col justify-center px-6 pt-24 pb-32">
+<div class="space-y-8">
+<div class="text-center space-y-2">
+<h2 class="font-display text-3xl">Expert Guidance</h2>
+<p class="font-label text-[10px] tracking-[0.2em] text-primary uppercase">Your Personal Skin Concierge</p>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Doctor Card 1 -->
+<div class="bg-surface-container p-5 rounded-lg border border-white/5 flex gap-4 hover:-translate-y-1 transition-all duration-300">
+<img alt="Doctor" class="w-24 h-24 object-cover rounded shadow-lg" data-alt="professional medical portrait of a female dermatologist in a clean minimalist clinic setting with soft neutral lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsKTIF0t0g2TjTsMrRrgDiqO-K39U4F5b_sR5y4OX6INoeDNvlAUejn5Ka4S3x7uXdbeNCcdTCrLf2fx4_2kF-Jj4HZ4HiQdjQ-UvCeh8KbnLEx45tM4d-WvigqP0RR56tTv_5JQxBiFYJ_OKtHC38gQEeX1NpVV3bd4IE1TUMXBaad1vgo-Cl3NdFsw7oPpC5NvCBAr5U5BrUpF1msfJChpuh4MeWfg7-rWvKHqNsufaH30hyNXpVHeClvj_7cyjrDWprjm96gx0"/>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<h4 class="font-display text-xl leading-none mb-1">Dr. Selene Voss</h4>
+<p class="text-[10px] font-label tracking-widest text-on-surface-variant uppercase">Dermatology Specialist</p>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-[10px] font-label text-primary">Available Now</span>
+</div>
+</div>
+</div>
+<!-- Doctor Card 2 -->
+<div class="bg-surface-container p-5 rounded-lg border border-white/5 flex gap-4 hover:-translate-y-1 transition-all duration-300">
+<img alt="Doctor" class="w-24 h-24 object-cover rounded shadow-lg" data-alt="professional portrait of a male aesthetician with a calm expression in a modern luxury spa background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWR6G_dsRUqkvtWmxz8z3OOb7365QvV7FyKF_yC35UjerS6EmvwtTcc7T14PkeUMWI0AnepuVl6-gBre-LPKPC1ltxf7IbqmtCD2LaAZN4aNgngc46OkXueSr2tHJjQXuQN-oL7dF-5ZMkiKMbb593M0vpvsf1F7-yoUbEFn_nJmxu9gdYh1ILeUKHuOjjeYSvvkiXb8QAugrR2UMml5Fzxhm5mAkhrAV6WtFhZrevdt01trqp09TmIhyPso7eKUUmOBc3vXBy5uw"/>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<h4 class="font-display text-xl leading-none mb-1">Marcus Aurelle</h4>
+<p class="text-[10px] font-label tracking-widest text-on-surface-variant uppercase">Holistic Esthetician</p>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">Next at 2:00 PM</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-4 bg-transparent border border-outline-variant/30 text-[10px] font-label tracking-[0.2em] uppercase text-primary hover:bg-primary/5 transition-colors">
+                        Book a Video Consultation
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#131313]/80 backdrop-blur-lg border-t border-white/5 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex justify-around items-center py-4 pb-safe rounded-t-xl z-50">
+<!-- Active Item: Ritual (Mapping Dashboard Home) -->
+<a class="flex flex-col items-center text-[#e1c39b] scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-[0.15em] mt-1">Ritual</span>
+</a>
+<a class="flex flex-col items-center text-white/40 hover:text-[#e1c39b]/80 transition-all" href="#">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-[0.15em] mt-1">Shop</span>
+</a>
+<a class="flex flex-col items-center text-white/40 hover:text-[#e1c39b]/80 transition-all" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-[0.15em] mt-1">Consult</span>
+</a>
+<a class="flex flex-col items-center text-white/40 hover:text-[#e1c39b]/80 transition-all" href="#">
+<span class="material-symbols-outlined">person_2</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-[0.15em] mt-1">Profile</span>
+</a>
+</nav>
+<!-- Left Navigation Drawer (Overlay Hidden by Default) -->
+<aside class="fixed inset-0 z-[60] pointer-events-none overflow-hidden hidden">
+<div class="h-full w-80 bg-[#131313]/60 backdrop-blur-2xl shadow-[40px_0_80px_rgba(0,0,0,0.3)] flex flex-col p-12 gap-8 pointer-events-auto transition-transform -translate-x-full">
+<h2 class="font-['Cormorant_Garamond'] text-xl tracking-widest text-[#e1c39b] border-b border-white/10 pb-4">MENU</h2>
+<nav class="flex flex-col gap-6">
+<a class="text-[#e1c39b] pl-4 border-l-2 border-[#e1c39b] font-['Cormorant_Garamond'] text-xl tracking-widest" href="#">The Collection</a>
+<a class="text-white/50 hover:pl-2 transition-all font-['Cormorant_Garamond'] text-xl tracking-widest hover:text-[#e1c39b]" href="#">Ingredients</a>
+<a class="text-white/50 hover:pl-2 transition-all font-['Cormorant_Garamond'] text-xl tracking-widest hover:text-[#e1c39b]" href="#">Our Story</a>
+<a class="text-white/50 hover:pl-2 transition-all font-['Cormorant_Garamond'] text-xl tracking-widest hover:text-[#e1c39b]" href="#">Appointments</a>
+<a class="text-white/50 hover:pl-2 transition-all font-['Cormorant_Garamond'] text-xl tracking-widest hover:text-[#e1c39b]" href="#">Sustainability</a>
+</nav>
+</div>
+<div class="flex-1 bg-black/20 backdrop-blur-sm pointer-events-auto"></div>
+</aside>
+</body></html>

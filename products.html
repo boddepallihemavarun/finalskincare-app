@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AURA — Skincare Products</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: #F0F4FF; }
+
+    .products-header {
+      background: linear-gradient(135deg, #0078FF 0%, #7B4FFF 100%);
+      padding: 48px 48px 40px;
+      color: white;
+      border-radius: 0 0 28px 28px;
+      margin-bottom: 32px;
+    }
+    .products-header h1 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .products-header p { opacity: 0.85; font-size: 0.9rem; }
+
+    /* Filter tabs */
+    .filter-bar {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      padding: 0 48px; margin-bottom: 28px;
+    }
+    .filter-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 0.82rem; font-weight: 600;
+      border: 1.5px solid var(--gray-200); background: white; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-display);
+    }
+    .filter-btn:hover { border-color: var(--aura-blue); color: var(--aura-blue); background: var(--aura-blue-soft); }
+    .filter-btn.active { background: linear-gradient(135deg, var(--aura-blue), var(--aura-violet)); color: white; border-color: transparent; box-shadow: 0 4px 16px rgba(0,120,255,0.3); }
+
+    /* Section label */
+    .condition-section { padding: 0 48px; margin-bottom: 40px; }
+    .condition-label {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .condition-label h2 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; }
+    .condition-tag {
+      padding: 4px 12px; border-radius: 99px; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .condition-label p { color: var(--text-muted); font-size: 0.82rem; margin-top: 2px; }
+
+    /* Product grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    /* Product card */
+    .product-card {
+      background: white; border-radius: 20px;
+      border: 1px solid var(--gray-100);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      overflow: hidden; transition: all 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 48px rgba(0,120,255,0.12);
+      border-color: rgba(0,120,255,0.15);
+    }
+    .product-img {
+      width: 100%; aspect-ratio: 1;
+      object-fit: cover; background: var(--gray-50);
+      position: relative;
+    }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; }
+    .product-badge {
+      position: absolute; top: 12px; left: 12px;
+      padding: 4px 10px; border-radius: 99px;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: white;
+    }
+    .product-rating {
+      position: absolute; bottom: 12px; right: 12px;
+      background: rgba(255,255,255,0.95); border-radius: 8px;
+      padding: 4px 8px; font-size: 0.72rem; font-weight: 700;
+      display: flex; align-items: center; gap: 3px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .product-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .product-brand { font-size: 0.7rem; font-weight: 600; color: var(--aura-blue); text-transform: uppercase; letter-spacing: 0.08em; }
+    .product-name { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); line-height: 1.35; }
+    .product-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+    .product-ingredient {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--aura-blue-soft); color: var(--aura-blue);
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 0.68rem; font-weight: 600; width: fit-content;
+    }
+    .product-use { font-size: 0.72rem; color: var(--text-muted); }
+    .product-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-top: 1px solid var(--gray-100);
+      background: var(--gray-50);
+    }
+    .product-price { font-family: var(--font-display); font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+    .product-buy {
+      padding: 7px 16px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--aura-blue), var(--aura-violet));
+      color: white; font-size: 0.75rem; font-weight: 700;
+      text-decoration: none; transition: all 0.2s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .product-buy:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,120,255,0.3); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+
+    /* Loading */
+    .loading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .skeleton { background: linear-gradient(90deg, #f0f4ff 25%, #e4eaff 50%, #f0f4ff 75%); background-size: 200%; animation: shimmer 1.5s infinite; border-radius: 20px; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 10px;
+      background: rgba(255,255,255,0.2); color: white;
+      font-size: 0.8rem; font-weight: 600; text-decoration: none;
+      transition: all 0.2s; margin-bottom: 16px;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .stars { color: #FFA800; }
+  </style>
+</head>
+<body>
+
+<div class="page-bg">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+</div>
+
+<!-- HEADER -->
+<div class="products-header">
+  <a href="dashboard.html" class="back-btn">
+    ← Back to Dashboard
+  </a>
+  <h1>🛍️ Skincare Products</h1>
+  <p>Dermatologist-curated products for every skin condition — with ingredients, uses, and where to buy</p>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterCondition('all')">All Products</button>
+  <button class="filter-btn" onclick="filterCondition('acne')">💊 Acne</button>
+  <button class="filter-btn" onclick="filterCondition('eczema')">🌿 Eczema</button>
+  <button class="filter-btn" onclick="filterCondition('pigmentation')">✨ Pigmentation</button>
+  <button class="filter-btn" onclick="filterCondition('rosacea')">🌸 Rosacea</button>
+  <button class="filter-btn" onclick="filterCondition('dry')">💧 Dry Skin</button>
+  <button class="filter-btn" onclick="filterCondition('psoriasis')">🩺 Psoriasis</button>
+  <button class="filter-btn" onclick="filterCondition('healthy')">💚 Healthy Skin</button>
+</div>
+
+<!-- PRODUCTS CONTAINER -->
+<div id="products-container"></div>
+
+<script>
+const API = 'http://localhost:8002'
+let ALL_PRODUCTS = {}
+let currentFilter = 'all'
+
+const CONDITION_META = {
+  acne        : { emoji: '💊', tag: 'Acne',          color: '#FF4D6A', desc: 'Products clinically proven to treat and prevent acne breakouts' },
+  eczema      : { emoji: '🌿', tag: 'Eczema',        color: '#00CC7E', desc: 'Gentle, barrier-repairing products for sensitive eczema-prone skin' },
+  pigmentation: { emoji: '✨', tag: 'Pigmentation',  color: '#FF9A00', desc: 'Brightening products that fade dark spots and even skin tone' },
+  rosacea     : { emoji: '🌸', tag: 'Rosacea',       color: '#FF6B9D', desc: 'Calming, fragrance-free products that reduce redness and flushing' },
+  dry         : { emoji: '💧', tag: 'Dry Skin',      color: '#0078FF', desc: 'Deeply hydrating products that restore moisture to dry, tight skin' },
+  psoriasis   : { emoji: '🩺', tag: 'Psoriasis',     color: '#7B4FFF', desc: 'Medicated and soothing products for psoriasis management' },
+  healthy     : { emoji: '💚', tag: 'Healthy Skin',  color: '#00C6FF', desc: 'Maintenance products to keep healthy skin glowing and protected' },
+}
+
+function starRating(rating) {
+  const full  = Math.floor(rating)
+  const half  = rating % 1 >= 0.5 ? 1 : 0
+  const empty = 5 - full - half
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty)
+}
+
+function renderCard(p) {
+  return `
+    <div class="product-card">
+      <div class="product-img" style="position:relative">
+        <img src="${p.image}" alt="${p.name}" loading="lazy"
+          onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300&h=300&fit=crop'"/>
+        <div class="product-badge" style="background:${p.badge_color}">${p.badge}</div>
+        <div class="product-rating">
+          <span class="stars">★</span> ${p.rating} <span style="color:#aaa">(${(p.reviews/1000).toFixed(1)}k)</span>
+        </div>
+      </div>
+      <div class="product-body">
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.description}</div>
+        <div class="product-ingredient">⚗️ ${p.ingredient}</div>
+        <div class="product-use">📅 ${p.use}</div>
+      </div>
+      <div class="product-footer">
+        <div class="product-price">${p.price}</div>
+        <a href="${p.where_to_buy}" target="_blank" class="product-buy">
+          Buy Now ↗
+        </a>
+      </div>
+    </div>
+  `
+}
+
+function renderSection(conditionKey, products) {
+  const meta = CONDITION_META[conditionKey] || { emoji:'🌿', tag: conditionKey, color:'#0078FF', desc:'' }
+  return `
+    <div class="condition-section" id="section-${conditionKey}">
+      <div class="condition-label">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <h2>${meta.emoji} ${meta.tag}</h2>
+            <span class="condition-tag" style="background:${meta.color}20;color:${meta.color};border:1px solid ${meta.color}40">${products.length} Products</span>
+          </div>
+          <p>${meta.desc}</p>
+        </div>
+      </div>
+      <div class="products-grid">
+        ${products.map(renderCard).join('')}
+      </div>
+    </div>
+  `
+}
+
+function filterCondition(condition) {
+  currentFilter = condition
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+  event.target.classList.add('active')
+  renderProducts()
+}
+
+function renderProducts() {
+  const container = document.getElementById('products-container')
+  if (!Object.keys(ALL_PRODUCTS).length) {
+    container.innerHTML = '<div class="empty-state">Loading products…</div>'
+    return
+  }
+
+  if (currentFilter === 'all') {
+    container.innerHTML = Object.entries(ALL_PRODUCTS)
+      .map(([key, products]) => renderSection(key, products))
+      .join('')
+  } else {
+    const products = ALL_PRODUCTS[currentFilter] || []
+    if (!products.length) {
+      container.innerHTML = '<div class="empty-state">No products found for this condition.</div>'
+    } else {
+      container.innerHTML = renderSection(currentFilter, products)
+    }
+  }
+}
+
+async function loadProducts() {
+  const container = document.getElementById('products-container')
+
+  // Show skeletons while loading
+  container.innerHTML = `
+    <div style="padding:0 48px">
+      <div class="loading-grid">
+        ${Array(8).fill('<div class="skeleton" style="height:380px"></div>').join('')}
+      </div>
+    </div>`
+
+  try {
+    const res  = await fetch(`${API}/products`)
+    const data = await res.json()
+    ALL_PRODUCTS = data.products || {}
+    renderProducts()
+  } catch (e) {
+    console.error('Failed to load products:', e)
+    // Use hardcoded fallback if API fails
+    container.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+        <div style="font-weight:600;margin-bottom:8px">Could not connect to AURA server</div>
+        <div style="font-size:0.85rem">Make sure your server is running at ${API}</div>
+      </div>`
+  }
+}
+
+// Check if a condition was passed via URL param (e.g. from scan result)
+window.addEventListener('DOMContentLoaded', () => {
+  const params    = new URLSearchParams(window.location.search)
+  const condition = params.get('condition')
+  if (condition && CONDITION_META[condition]) {
+    currentFilter = condition
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      if (b.textContent.toLowerCase().includes(condition)) b.classList.add('active')
+      else b.classList.remove('active')
+    })
+  }
+  loadProducts()
+})
+</script>
+</body>
+</html>
