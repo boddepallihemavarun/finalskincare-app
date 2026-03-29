@@ -233,7 +233,7 @@ function startScan() {
 
     try {
       // Call the API
-      const response = await fetch('http://localhost:8002/predict', {
+      const response = await fetch('https://marcos-unfraternal-pulpally.ngrok-free.dev/predict', {
         method: 'POST',
         body: formData
       });
@@ -405,7 +405,7 @@ function askQuestion(question) {
   chatBody.scrollTop = chatBody.scrollHeight;
 
   // Call API for bot response
-  fetch('http://localhost:8002/chat', {
+  fetch('https://marcos-unfraternal-pulpally.ngrok-free.dev/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
