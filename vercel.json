@@ -1,14 +1,37 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "dashboard.html", "use": "@vercel/static" },
-    { "src": "styles.css", "use": "@vercel/static" },
-    { "src": "products.html", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/dashboard", "dest": "/dashboard.html" },
-    { "src": "/products", "dest": "/products.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/products", "destination": "/products.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ]
 }
+```
+
+**Step 3 — Click "Commit changes"**
+
+---
+
+**Step 4 — Also delete these files if they exist in your repo:**
+
+Click each one → trash icon → commit:
+- `requirements.txt`
+- `Procfile`
+- `runtime.txt`
+- `main.py`
+
+These backend files confuse Vercel.
+
+---
+
+**Step 5 — Go to Vercel → your project → Deployments → click Redeploy**
+
+---
+
+**Your repo should have ONLY these files:**
+```
+index.html        ✅
+dashboard.html    ✅
+styles.css        ✅
+products.html     ✅
+vercel.json       ✅
