@@ -6,32 +6,3 @@
     { "source": "/admin", "destination": "/admin.html" }
   ]
 }
-```
-
-**Step 3 — Click "Commit changes"**
-
----
-
-**Step 4 — Also delete these files if they exist in your repo:**
-
-Click each one → trash icon → commit:
-- `requirements.txt`
-- `Procfile`
-- `runtime.txt`
-- `main.py`
-
-These backend files confuse Vercel.
-
----
-
-**Step 5 — Go to Vercel → your project → Deployments → click Redeploy**
-
----
-
-**Your repo should have ONLY these files:**
-```
-index.html        ✅
-dashboard.html    ✅
-styles.css        ✅
-products.html     ✅
-vercel.json       ✅
